@@ -25,6 +25,7 @@ class ChatGPT(object):
         self.driver.quit()
 
     def send(self, str="你好", delay=0.25):
+        # 向GPT发送信息
         self.ask_cnt = self.ask_cnt+1
         txtbox = self.driver.find_element(By.CSS_SELECTOR, ".m-0")
         txtbox.click()
@@ -40,11 +41,13 @@ class ChatGPT(object):
         time.sleep(delay)
 
     def getAnswer(self):
+        # 获取最近的一条回复（哪怕没有GPT没有说完）
         reply_str = self.driver.find_element(By.XPATH,f"/html/body/div[1]/div[2]/div/div/main/div[2]/div/div/div/div[{2*self.ask_cnt+1}]").text
         print(f"当前div值{2*self.ask_cnt+1}")
         return reply_str
 
     def transform(self):
+        # 切换GPT3和GPT4模型
         if self.model == '3':
             self.ask_cnt = 0
             self.driver.get("https://chat.openai.com/?model=gpt-4")
@@ -55,6 +58,7 @@ class ChatGPT(object):
             self.model = '3'
 
     def reload(self):
+        # 重新加载当前模型
         if self.model == '3':
             self.ask_cnt = 0
             self.driver.get("https://chat.openai.com/")
@@ -63,9 +67,24 @@ class ChatGPT(object):
             self.ask_cnt = 0
             self.driver.get("https://chat.openai.com/?model=gpt-4")
 
+    def GetWholeAnswer(self):
+        # 一次完整的问答，等待GPT回答完全后返回回答。（用于项目对接）
+        log("等待回复中...")
+        reply_str = ""
+        # 判断ChatGPT是否正忙
+        while self.driver.find_elements(By.CSS_SELECTOR, ".result-streaming") != []:
+            pass
+        elemList = self.getReplyList()
+        for i in range(self.reply_cnt, len(elemList)):
+            reply_str += elemList[i].text
+            reply_str += "\n"
+        log(reply_str)
+        self.reply_cnt = len(elemList)
+        return reply_str, True
 
-
-
+     # 获取ChatGPT回复列表
+    def getReplyList(self):
+        return self.driver.find_elements(By.CSS_SELECTOR, ".markdown > p")
 
 
 if __name__ == '__main__':

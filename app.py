@@ -48,6 +48,13 @@ def reload():
     chatgpt.reload()
     return  " Loaded successfully"
 
+@app.route("/interview", methods=["POST"])
+def generate():
+    prompt = request.form.get("text")
+    print(prompt)
+    chatgpt.send(prompt)
+    response_text = chatgpt.GetWholeAnswer()
+    return jsonify({"response": response_text})
 
 if __name__ == '__main__':
     chatgpt = gpt.ChatGPT(9222)
