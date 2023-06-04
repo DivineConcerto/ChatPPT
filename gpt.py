@@ -20,6 +20,7 @@ class ChatGPT(object):
         self.vars = {}
         self.ask_cnt = 0
         self.model = '3'
+        self.reply_cnt = 0
 
     def __del__(self):
         self.driver.quit()

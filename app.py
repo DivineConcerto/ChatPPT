@@ -50,7 +50,7 @@ def reload():
 
 @app.route("/interview", methods=["POST"])
 def generate():
-    prompt = request.form.get("text")
+    prompt = request.form.get("prompt")
     print(prompt)
     chatgpt.send(prompt)
     response_text = chatgpt.GetWholeAnswer()
