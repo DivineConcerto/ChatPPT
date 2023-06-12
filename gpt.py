@@ -24,6 +24,8 @@ class ChatGPT(object):
         self.model = '3'
         self.reply_cnt = 0
         self.wait_time = 0
+        self.check_thread = threading.Thread(target=self.not_wait)
+        self.check_thread.start()
 
     def __del__(self):
         self.driver.quit()
@@ -96,7 +98,7 @@ class ChatGPT(object):
             reply_str += '\n'
         log(reply_str)
         self.reply_cnt = len(elem_list)
-        return reply_str, True
+        return reply_str
 
     def get_reply_list(self):
         return self.driver.find_elements(By.CSS_SELECTOR, ".markdown > p")
@@ -107,9 +109,7 @@ class ChatGPT(object):
             self.wait_time += 5
             # 如果超过五分钟没有发消息，那么自动发送一条信息，防止GPT休眠。
             if self.wait_time >= 300:
-                self.send("我又来了，你还在吗？")
-
-
+                self.send(self.get_last_answer())
 
 
 if __name__ == '__main__':

@@ -51,7 +51,7 @@ def reload():
 
 
 @app.route("/interview", methods=["POST"])
-def generate():
+def interview():
     prompt = request.form.get("prompt")
     print(prompt)
     chatgpt.send(prompt)
@@ -61,8 +61,5 @@ def generate():
 
 if __name__ == '__main__':
     chatgpt = gpt.ChatGPT(9222)
-    check_thread = threading.Thread(target=chatgpt.not_wait)
-    check_thread.start()
-    print("检查线程启动完成！")
     app.run(debug=True, host='0.0.0.0', port=9999)
     print("程序已经成功启动！")
