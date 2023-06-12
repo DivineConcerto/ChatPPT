@@ -48,9 +48,9 @@ class ChatGPT(object):
         self.wait_time = 0
         time.sleep(delay)
 
-    def get_answer_old(self):
+    def get_answer(self):
         # 获取最近的一条回复（哪怕没有GPT没有说完）
-        reply_str = self.driver.find_element(By.XPATH,f"/html/body/div[1]/div[2]/div/div/main/div[2]/div/div/div/div[{2*self.ask_cnt+1}]").text
+        reply_str = self.driver.find_element(By.XPATH, f"/html/body/div[1]/div[2]/div/div/main/div[2]/div/div/div/div[3]/div/div[{2*self.ask_cnt}]").text
         print(f"当前div值{2*self.ask_cnt+1}")
         return reply_str
 
@@ -90,15 +90,6 @@ class ChatGPT(object):
         self.reply_cnt = len(elem_list)
         return reply_str, True
 
-    def get_last_answer(self):
-        reply_str = ""
-        elem_list = self.get_reply_list()
-        for i in range(self.reply_cnt, len(elem_list)):
-            reply_str += elem_list[i].text
-            reply_str += '\n'
-        log(reply_str)
-        self.reply_cnt = len(elem_list)
-        return reply_str
 
     def get_reply_list(self):
         return self.driver.find_elements(By.CSS_SELECTOR, ".markdown > p")
@@ -109,7 +100,7 @@ class ChatGPT(object):
             self.wait_time += 5
             # 如果超过五分钟没有发消息，那么自动发送一条信息，防止GPT休眠。
             if self.wait_time >= 300:
-                self.send(self.get_last_answer())
+                self.send(self.get_answer())
 
 
 if __name__ == '__main__':
