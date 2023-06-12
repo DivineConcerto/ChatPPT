@@ -16,13 +16,13 @@ def generate():
     prompt = request.form.get("prompt")
     print(prompt)
     chatgpt.send(prompt)
-    response_text = chatgpt.getAnswer()
+    response_text = chatgpt.get_last_answer()
     return jsonify({"response": response_text})
 
 
 @app.route("/response")
 def response():
-    response_text = chatgpt.getAnswer()
+    response_text = chatgpt.get_last_answer()
     return jsonify({"response": response_text})
 
 

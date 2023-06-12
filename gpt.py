@@ -41,7 +41,7 @@ class ChatGPT(object):
         txtbox.send_keys(Keys.ENTER)
         time.sleep(delay)
 
-    def getAnswer(self):
+    def get_answer_old(self):
         # 获取最近的一条回复（哪怕没有GPT没有说完）
         reply_str = self.driver.find_element(By.XPATH,f"/html/body/div[1]/div[2]/div/div/main/div[2]/div/div/div/div[{2*self.ask_cnt+1}]").text
         print(f"当前div值{2*self.ask_cnt+1}")
@@ -82,6 +82,16 @@ class ChatGPT(object):
         log(reply_str)
         self.reply_cnt = len(elemList)
         return reply_str, True
+
+    def get_last_answer(self):
+        reply_str = ""
+        elemList = self.getReplyList()
+        for i in range(self.reply_cnt, len(elemList)):
+            reply_str += elemList[i].text
+            reply_str += '\n'
+        log(reply_str)
+        self.reply_cnt = len(elemList)
+        return reply_str,True
 
      # 获取ChatGPT回复列表
     def getReplyList(self):
