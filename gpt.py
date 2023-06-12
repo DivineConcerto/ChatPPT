@@ -1,5 +1,7 @@
 import time
 import datetime
+import schedule
+import threading
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -21,6 +23,7 @@ class ChatGPT(object):
         self.ask_cnt = 0
         self.model = '3'
         self.reply_cnt = 0
+        self.wait_time = 0
 
     def __del__(self):
         self.driver.quit()
@@ -39,6 +42,8 @@ class ChatGPT(object):
             txtbox.send_keys(Keys.SHIFT, Keys.ENTER)
             time.sleep(delay)
         txtbox.send_keys(Keys.ENTER)
+        # 发送消息后，将等待时间清零。
+        self.wait_time = 0
         time.sleep(delay)
 
     def get_answer_old(self):
@@ -68,34 +73,43 @@ class ChatGPT(object):
             self.ask_cnt = 0
             self.driver.get("https://chat.openai.com/?model=gpt-4")
 
-    def GetWholeAnswer(self):
+    def get_whole_answer(self):
         # 一次完整的问答，等待GPT回答完全后返回回答。（用于项目对接）
         log("等待回复中...")
         reply_str = ""
         # 判断ChatGPT是否正忙
         while self.driver.find_elements(By.CSS_SELECTOR, ".result-streaming") != []:
             pass
-        elemList = self.getReplyList()
-        for i in range(self.reply_cnt, len(elemList)):
-            reply_str += elemList[i].text
+        elem_list = self.get_reply_list()
+        for i in range(self.reply_cnt, len(elem_list)):
+            reply_str += elem_list[i].text
             reply_str += "\n"
         log(reply_str)
-        self.reply_cnt = len(elemList)
+        self.reply_cnt = len(elem_list)
         return reply_str, True
 
     def get_last_answer(self):
         reply_str = ""
-        elemList = self.getReplyList()
-        for i in range(self.reply_cnt, len(elemList)):
-            reply_str += elemList[i].text
+        elem_list = self.get_reply_list()
+        for i in range(self.reply_cnt, len(elem_list)):
+            reply_str += elem_list[i].text
             reply_str += '\n'
         log(reply_str)
-        self.reply_cnt = len(elemList)
-        return reply_str,True
+        self.reply_cnt = len(elem_list)
+        return reply_str, True
 
-     # 获取ChatGPT回复列表
-    def getReplyList(self):
+    def get_reply_list(self):
         return self.driver.find_elements(By.CSS_SELECTOR, ".markdown > p")
+
+    def not_wait(self):
+        while True:
+            time.sleep(5)
+            self.wait_time += 5
+            # 如果超过五分钟没有发消息，那么自动发送一条信息，防止GPT休眠。
+            if self.wait_time >= 300:
+                self.send("我又来了，你还在吗？")
+
+
 
 
 if __name__ == '__main__':

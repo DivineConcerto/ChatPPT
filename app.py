@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from selenium.webdriver.common.by import By
 import gpt
+import threading
 
 
 app = Flask(__name__)
@@ -31,7 +32,7 @@ def check():
     if chatgpt.driver.find_elements(By.CSS_SELECTOR, ".result-streaming") != []:
         return jsonify({"response": "1"})
     else:
-        return jsonify({"response":None})
+        return jsonify({"response": None})
 
 
 @app.route('/transform')
@@ -46,16 +47,22 @@ def transform():
 @app.route('/reload')
 def reload():
     chatgpt.reload()
-    return  " Loaded successfully"
+    return " Loaded successfully"
+
 
 @app.route("/interview", methods=["POST"])
 def generate():
     prompt = request.form.get("prompt")
     print(prompt)
     chatgpt.send(prompt)
-    response_text = chatgpt.GetWholeAnswer()
+    response_text = chatgpt.get_whole_answer()
     return jsonify({"response": response_text})
+
 
 if __name__ == '__main__':
     chatgpt = gpt.ChatGPT(9222)
+    check_thread = threading.Thread(target=chatgpt.not_wait)
+    check_thread.start()
+    print("检查线程启动完成！")
     app.run(debug=True, host='0.0.0.0', port=9999)
+    print("程序已经成功启动！")
